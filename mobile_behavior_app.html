@@ -1,0 +1,2080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Human Behavior Simulator - Mobile App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 100%;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(135deg, #fff 0%, #a8edea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            font-size: 11px;
+            text-align: center;
+            opacity: 0.8;
+            margin-top: 3px;
+        }
+
+        /* Search Bar */
+        .search-container {
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 25px;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 15px;
+            outline: none;
+        }
+
+        /* Filter Pills */
+        .filter-pills {
+            display: flex;
+            gap: 8px;
+            padding: 10px 15px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .filter-pills::-webkit-scrollbar {
+            display: none;
+        }
+
+        .pill {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .pill.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        /* Profile Cards */
+        .profiles-container {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .profile-card:active {
+            transform: scale(0.98);
+        }
+
+        .profile-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .profile-name {
+            font-size: 17px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .profile-category {
+            font-size: 11px;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 4px 10px;
+            border-radius: 10px;
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .info-tag {
+            font-size: 11px;
+            padding: 4px 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        .chevron {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Detail Page */
+        .detail-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 1000;
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .detail-page.active {
+            transform: translateX(0);
+        }
+
+        .detail-header {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 101;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-button {
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+        }
+
+        .detail-title {
+            flex: 1;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .detail-content {
+            padding: 20px;
+        }
+
+        .profile-header-detail {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .profile-title-detail {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .detail-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .detail-tag {
+            padding: 8px 14px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .trait-section {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 18px;
+            margin-bottom: 15px;
+            border-left: 4px solid;
+        }
+
+        .trait-section.decision { border-left-color: #4facfe; }
+        .trait-section.communication { border-left-color: #43e97b; }
+        .trait-section.values { border-left-color: #fa709a; }
+        .trait-section.financial { border-left-color: #feca57; }
+        .trait-section.stressors { border-left-color: #ff6b6b; }
+        .trait-section.social { border-left-color: #a29bfe; }
+        .trait-section.body { border-left-color: #00d2d3; }
+        .trait-section.red-flags { border-left-color: #ff5252; }
+
+        .trait-icon {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .trait-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .trait-content {
+            font-size: 14px;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+
+        /* Category View */
+        .category-section {
+            margin-bottom: 25px;
+        }
+
+        .category-header {
+            font-size: 18px;
+            font-weight: 700;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-count {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 98;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 8px 15px;
+            border-radius: 10px;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 0;
+        }
+
+        .main-content {
+            padding-bottom: 100px;
+        }
+
+        /* Guide Section */
+        .guide-container {
+            padding: 15px;
+            padding-bottom: 100px;
+        }
+
+        .guide-section {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 18px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .guide-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .guide-content {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .guide-list {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+
+        .guide-list li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        /* Stats */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding: 15px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container" id="app">
+        <!-- Header -->
+        <div class="header">
+            <h1>Human Behavior Simulator</h1>
+            <div class="subtitle">Understanding Every Walk of Life</div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Content will be dynamically inserted here -->
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchTab('browse')">
+                <div class="nav-icon">👥</div>
+                <div class="nav-label">Browse</div>
+            </div>
+            <div class="nav-item" onclick="switchTab('categories')">
+                <div class="nav-icon">📁</div>
+                <div class="nav-label">Categories</div>
+            </div>
+            <div class="nav-item" onclick="switchTab('guide')">
+                <div class="nav-icon">📚</div>
+                <div class="nav-label">Guide</div>
+            </div>
+        </div>
+
+        <!-- Detail Page (Hidden by default) -->
+        <div class="detail-page" id="detailPage">
+            <div class="detail-header">
+                <div class="back-button" onclick="closeDetail()">←</div>
+                <div class="detail-title" id="detailPageTitle">Profile Details</div>
+            </div>
+            <div class="detail-content" id="detailPageContent">
+                <!-- Detail content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const profiles = [
+            {
+                id: 1,
+                name: "Software Engineer",
+                category: "Tech & Innovation",
+                age: 32,
+                income: "High ($100k-200k)",
+                education: "Masters in CS",
+                religion: "Secular/Agnostic",
+                location: "Urban Tech Hub",
+                icon: "💻",
+                traits: {
+                    decisionMaking: "Analytical and data-driven. Questions assumptions constantly. Seeks optimization in everything. Comfortable with ambiguity if data supports it. Uses A/B testing mentality in life decisions. Prefers systematic approaches.",
+                    communication: "Direct and precise. Prefers async communication (Slack, email). Uses technical jargon naturally. Values efficiency over social niceties. Can be blunt. Excellent written communication. Struggles with small talk.",
+                    values: "Innovation, continuous learning, meritocracy, autonomy, open-source ethos, work-life balance (in theory), solving complex problems, intellectual challenge, efficiency",
+                    financial: "High earner but lifestyle varies. Invests in index funds, crypto curious. Wants FIRE (Financial Independence Retire Early). Good at optimizing credit cards and rewards. May have stock options. Rational about money.",
+                    stressors: "Imposter syndrome epidemic. Burnout from overwork culture. Rapid skill obsolescence anxiety. Ageism concerns after 40. Interview stress. Market volatility affecting stock compensation. Work-life boundaries.",
+                    social: "Small tight-knit friend groups. Online communities important (Reddit, Discord). Meetups focused on interests not networking. May struggle with emotional intimacy. Gaming/tech hobbies. Dating app natives.",
+                    bodyLanguage: "Relaxed posture. Minimal eye contact when thinking deeply. Fidgets with tech devices. Hoodie culture. Casual everything. Poor posture from sitting. Energized when discussing tech.",
+                    redFlags: "Dismissive of non-technical people. Overconfident outside expertise area. Can be insensitive to emotional needs. May prioritize machines over people. Burnout denial. Difficulty reading social cues."
+                }
+            },
+            {
+                id: 2,
+                name: "Startup Founder",
+                category: "Tech & Innovation",
+                age: 29,
+                income: "Variable (High potential)",
+                education: "College Dropout/Bachelors",
+                religion: "Varied",
+                location: "Urban",
+                icon: "🚀",
+                traits: {
+                    decisionMaking: "Extremely high risk tolerance. Intuitive decision-making. Bias toward action over analysis. Pivots quickly when something doesn't work. Pattern recognition across domains. Comfortable with uncertainty. Always betting on themselves.",
+                    communication: "Charismatic and persuasive. Always 'on' and pitching. Masters of storytelling and narrative. Selectively transparent. Inspirational speaking. Can be manipulative. Reality distortion field. Network obsessed.",
+                    values: "Disruption, building something meaningful, proving doubters wrong, independence, making impact, winning, legacy creation, changing the world, speed, growth mindset",
+                    financial: "Everything reinvested in business. Lives modestly despite raising millions. Net worth mostly on paper. Obsessed with valuation. Terrible at personal finance. Fundraising as survival skill. Burn rate anxiety.",
+                    stressors: "Constant financial uncertainty. Responsibility for team and their families. Fundraising pressure never ends. Loneliness at the top. Imposter syndrome. Market timing. Competition. Burnout inevitable.",
+                    social: "Transactional networking mixed with deep loyalty to early team members. Always building relationships for business value. Limited work-life separation. Charismatic but guarded. Attracts yes-men. Lonely.",
+                    bodyLanguage: "High energy always. Expansive gestures when pitching. Intense eye contact. Leans forward when engaged. Commanding presence. Fast-paced movement. Sleep-deprived often. Confidence radiates.",
+                    redFlags: "Overpromises regularly. Can be manipulative for company benefit. May sacrifice personal ethics for growth. Burnout common. Relationships suffer. Reality distortion can become delusion. Ego problems."
+                }
+            },
+            {
+                id: 3,
+                name: "ER Doctor",
+                category: "Healthcare",
+                age: 42,
+                income: "Very High ($250k+)",
+                education: "MD",
+                religion: "Varied",
+                location: "Urban/Suburban",
+                icon: "🏥",
+                traits: {
+                    decisionMaking: "Lightning-fast decisive action under extreme pressure. Triage mentality in life. Comfortable with life-or-death stakes. Protocol-driven but adapts. Pattern recognition expert. Confident in expertise.",
+                    communication: "Clear, direct, authoritative. Excellent at de-escalation. Can be blunt when time is critical. Commands respect naturally. Speaks in medical shorthand. Comfortable giving bad news. Decisive tone.",
+                    values: "Saving lives above all. Competence under pressure. Teamwork and trust. Protocol adherence for safety. Continuous learning. Making split-second counts. Excellence in craft.",
+                    financial: "High income but massive student debt (often $200k+). Delayed financial maturity. Excellent at risk assessment. Invests conservatively. Lifestyle inflation common. Good at triage here too.",
+                    stressors: "Traumatic cases regularly. Malpractice lawsuit anxiety. Extremely long shifts (24+ hours). Compassion fatigue. Bureaucracy and insurance battles. Seeing death constantly. Missing family events.",
+                    social: "Dark gallows humor with colleagues essential for coping. Difficult relating to 'civilian' problems. Compartmentalizes emotions. Often emotionally unavailable at home. Divorce rate high.",
+                    bodyLanguage: "Unnaturally calm under pressure. Direct piercing eye contact. Efficient purposeful movements. Notices physical symptoms instinctively. Authoritative posture. Tired eyes. Always assessing.",
+                    redFlags: "God complex possible. PTSD from cases. Substance abuse risk high. Difficulty with work-life boundaries. May be emotionally distant. Controlling tendencies. Burnout denial."
+                }
+            },
+            {
+                id: 4,
+                name: "ICU Nurse",
+                category: "Healthcare",
+                age: 38,
+                income: "Middle-High ($70-100k)",
+                education: "BSN/MSN",
+                religion: "Often Religious",
+                location: "Suburban/Urban",
+                icon: "👨‍⚕️",
+                traits: {
+                    decisionMaking: "Empathy-first but pragmatic. Considers patient comfort alongside medical needs. Extremely detail-oriented. Advocates fiercely for patients. Balances many priorities simultaneously.",
+                    communication: "Warm and reassuring to patients. Excellent active listener. Mediates between doctors and patients beautifully. Advocates assertively when needed. Translates medical jargon. Empathy expert.",
+                    values: "Patient dignity and comfort. Compassionate care. Speaking up for the vulnerable. Teamwork and collaboration. Service to others. Making a difference. Professional competence.",
+                    financial: "Conservative saver. Prioritizes family needs over personal wants. Often works extra shifts for financial goals. Benefits decent. Frustrated by pay vs responsibility. Student debt burden.",
+                    stressors: "Severe emotional burnout epidemic. Inadequate staffing chronically. Witnessing suffering daily. Feeling undervalued by healthcare system. Physical demands intense. COVID trauma. Moral injury.",
+                    social: "Incredibly strong bonds with fellow nurses - war buddies. Maintains friendships for decades. Very community and family focused. Church community often. Everyone seeks them for advice.",
+                    bodyLanguage: "Gentle healing touch. Very attentive posture. Notices discomfort in others immediately. Tired eyes common. Warm presence. Comfortable with physical closeness. Caring radiates.",
+                    redFlags: "Martyr complex common. Extreme difficulty setting boundaries. Can become cynical as protection. Secondary trauma. Compassion fatigue. Burnout leading to medical errors. Depression."
+                }
+            },
+            {
+                id: 5,
+                name: "High School Teacher",
+                category: "Education",
+                age: 35,
+                income: "Lower-Middle ($45-65k)",
+                education: "Bachelors/Masters",
+                religion: "Varied",
+                location: "Suburban/Urban",
+                icon: "📚",
+                traits: {
+                    decisionMaking: "Student-centered always. Long-term impact focused. Idealistic but becomes pragmatic with experience. Creative problem-solving. Works within system constraints. Mission-driven.",
+                    communication: "Exceptional at explaining complex ideas simply. Patient with repetition. Projects authority without authoritarianism. Motivational speaker. Active listener. Adapts to audience.",
+                    values: "Shaping future generations. Educational equity. Intellectual curiosity. Personal growth. Making a difference in young lives. Learning for its own sake. Patience and persistence.",
+                    financial: "Significant financial struggles. Summer jobs common. Pension-dependent for retirement. Spends own money on classroom supplies regularly. Second income often needed. Underpaid dramatically.",
+                    stressors: "Extremely low pay for education level. Lack of societal respect. Standardized testing pressure crushing. Difficult parents. Systemic issues they can't fix. Burnout epidemic. Funding cuts.",
+                    social: "Deep mentorship relationships with students. Strong bonds with colleagues. Maintains student connections over many years. Community involvement. Some students become like family.",
+                    bodyLanguage: "Commanding classroom presence. Projects voice naturally. Patient expression. 'Teacher face' for discipline. System-worn appearance. Carries invisible weight. Warm but firm.",
+                    redFlags: "Burnout leading to cynicism about 'the system'. Inappropriate boundaries with students (rare but concerning). Complete exhaustion. Depression from feeling ineffective. Leaving profession."
+                }
+            },
+            {
+                id: 6,
+                name: "Investment Banker",
+                category: "Finance",
+                age: 31,
+                income: "Very High ($200k-500k+)",
+                education: "MBA/Top Undergrad",
+                religion: "Varied",
+                location: "Major Financial Hub",
+                icon: "💼",
+                traits: {
+                    decisionMaking: "Fast-paced and aggressive. Risk-calculated but bold. Results-driven exclusively. Quantitative focus. Everything is a deal. Competitive in all areas. Zero-sum mentality.",
+                    communication: "Type A dominant. Interrupts frequently. Controls conversation. Aggressive negotiation style. Name drops constantly. Speaks in finance jargon. Intimidation as tool. Always selling.",
+                    values: "Wealth accumulation paramount. Status symbols. Winning at all costs. Elite networks. Prestige. Power. Proving superiority. Material success. Competition as lifestyle.",
+                    financial: "Earns extraordinarily well but lifestyle inflation extreme. Bonus-dependent income. Sophisticated investing. Leveraged everything. Comparison with peers constant. Money as scorecard.",
+                    stressors: "Insane 80-100+ hour weeks standard. Market volatility stress. Intense competition. Job insecurity despite high pay. Client demands. Deal stress. Relationship with work toxic.",
+                    social: "Transactional relationships common. Networking is oxygen. Status-conscious socializing. Work is identity completely. Dating suffers. Friends also in finance. Elite social circles.",
+                    bodyLanguage: "Aggressive power posture. Firm dominating handshake. Checks phone constantly. Impatient energy visible. Designer everything. Gym-fit. Stimulant use apparent. Alpha display.",
+                    redFlags: "Substance abuse extremely common (cocaine, Adderall). Ethical shortcuts rationalized. Severe burnout. Relationship difficulties. Arrogance. Depression masked. Moral flexibility."
+                }
+            },
+            {
+                id: 7,
+                name: "Small Business Owner",
+                category: "Business",
+                age: 47,
+                income: "Variable ($50k-150k)",
+                education: "Varied",
+                religion: "Varied",
+                location: "Suburban/Small City",
+                icon: "🏪",
+                traits: {
+                    decisionMaking: "Hands-on everything. Scrappy resourceful. Wears all hats daily. Quick pivots necessary. Cash flow obsessed. Customer-first. Pragmatic over idealistic.",
+                    communication: "Personable and sales-oriented naturally. Knows customers by name. Community-focused messaging. Direct problem-solving. Relationship-builder. Accessible.",
+                    values: "Independence and autonomy. Building something lasting. Local community. Family legacy. Customer service excellence. Being own boss. Pride in business.",
+                    financial: "Business and personal finances often blurred. Reinvests profits constantly. Up and down income normal. Retirement planning difficult. Everything at risk. Creative financing.",
+                    stressors: "Constant cash flow anxiety. Finding good reliable employees. Competition from big box stores. Work-life boundaries nonexistent. Regulations. Economic uncertainty.",
+                    social: "Local business networks crucial. Chamber of commerce. Customer relationships deep. Family often involved in business. Community standing important. Limited free time.",
+                    bodyLanguage: "Warm approachable manner. Practical clothing. Signs of stress visible. Multi-tasking constantly. Handshake remembered. Genuine smile. Tired but present.",
+                    redFlags: "Overextension common. Family conflicts in business. Difficulty scaling or delegating. Resistance to change. Financial stress affecting health. Burnout."
+                }
+            },
+            {
+                id: 8,
+                name: "Freelance Graphic Designer",
+                category: "Creative",
+                age: 31,
+                income: "Variable ($30k-80k)",
+                education: "Art School/Self-taught",
+                religion: "Often Secular/Spiritual",
+                location: "Urban",
+                icon: "🎨",
+                traits: {
+                    decisionMaking: "Aesthetic-driven choices. Portfolio-minded. Balances creative vision with client needs (struggle). Flexible schedule. Intuitive process. Project-based thinking.",
+                    communication: "Visual communicator primarily. Presents mockups not just talks. Sensitive to feedback but defends vision. Client management crucial skill. Online presence important.",
+                    values: "Creative expression freedom. Artistic integrity battles. Work-life flexibility. Visual beauty. Originality. Personal brand. Avoiding corporate structure.",
+                    financial: "Extreme feast or famine income. Struggles with pricing own work. Undercharges often. Invoice chasing. No benefits or stability. Side hustles multiple. Taxes complicated.",
+                    stressors: "Inconsistent income major stress. Difficult demanding clients. Creative blocks paralyzing. Work undervalued constantly. Scope creep. Isolation. Imposter syndrome.",
+                    social: "Creative community crucial. Networking essential for work. Online presence important. Collaborative projects. Coffee shop culture. Artistic circles.",
+                    bodyLanguage: "Expressive naturally. Visually aware of aesthetics everywhere. Gestures when explaining vision. Casual creative style. Tattoos common. Thoughtful appearance.",
+                    redFlags: "Severe imposter syndrome. Burnout from overwork to compensate for low rates. Difficulty with business side. Flaky stereotype sometimes true. Financial instability."
+                }
+            },
+            {
+                id: 9,
+                name: "Restaurant Server",
+                category: "Service",
+                age: 26,
+                income: "Low ($20k-35k tip-dependent)",
+                education: "Some College/HS",
+                religion: "Varied",
+                location: "Urban/Suburban",
+                icon: "🍽️",
+                traits: {
+                    decisionMaking: "Quick thinking on feet constantly. Highly adaptable to customer needs. Prioritizes tips in decision-making. Efficient multi-tasking. Reads situations fast.",
+                    communication: "Friendly service persona mastered. Code-switches by table type. Reads people incredibly quickly. Fake smile perfected. Upsells naturally. Memory for details.",
+                    values: "Hard work ethic. Hustle mentality. Team support crucial. Making money. Treating it as transitional (for many). Service excellence. Getting through shift.",
+                    financial: "Lives absolutely paycheck to paycheck. Cash income daily. Extremely difficult to save. No retirement planning. Tips make or break week. Unstable.",
+                    stressors: "Rude entitled customers regularly. Brutal physical demands. Tip variability anxiety. No benefits. Irregular unpredictable schedule. Standing all day. Kitchen conflicts.",
+                    social: "Extremely close-knit with coworkers. Post-shift bonding essential. Understands class dynamics intimately. Industry friends. Limited outside time.",
+                    bodyLanguage: "High artificial energy at work. Constantly moving. Stress shows in back of house. Professional mask in front. Tired feet. Forced smile.",
+                    redFlags: "Substance use for coping. Burnout. Exploitation by management. Difficulty leaving industry. Injury. Health neglect. Financial crisis one emergency away."
+                }
+            },
+            {
+                id: 10,
+                name: "Electrician",
+                category: "Trades",
+                age: 38,
+                income: "Middle-High ($55k-90k)",
+                education: "Trade School/Apprenticeship",
+                religion: "Varied",
+                location: "Suburban/Small City",
+                icon: "⚡",
+                traits: {
+                    decisionMaking: "Safety-first always. Practical problem-solving. Learned from experience. Code-compliant. Methodical approach. Tests before trusting. Cautious.",
+                    communication: "Straightforward direct. Explains technical to laypeople well. Honest about costs and time. No BS. Respects skill. Mentors apprentices.",
+                    values: "Craftsmanship pride. Safety paramount. Fair day's work. Independence. Skill mastery. Teaching next generation. Quality over speed.",
+                    financial: "Good solid income without student debt burden. Saves for retirement. Owns tools and truck (expense). Self-employed many. Business-minded.",
+                    stressors: "Physical demands toll on body. Safety risks daily. Client price complaints. Weather dependency. Body wearing out. Keeping up with code changes.",
+                    social: "Trades community strong. Union or contractor networks. Local reputation crucial. Family-oriented. Weekends off usually. Respected in community.",
+                    bodyLanguage: "Practical work attire. Confident with tools. Physical awareness. Respectful but direct. Callused hands. Fit from work. Problem-solving expression.",
+                    redFlags: "Body injury ending career early. Old school attitudes sometimes. Resistance to new technology. Back problems. Hearing loss. Safety shortcuts under pressure."
+                }
+            },
+            {
+                id: 11,
+                name: "Police Officer",
+                category: "Public Safety",
+                age: 36,
+                income: "Middle ($50k-80k)",
+                education: "Some College/Academy",
+                religion: "Often Religious",
+                location: "Urban/Suburban",
+                icon: "👮",
+                traits: {
+                    decisionMaking: "Protocol-driven. Quick assessment under pressure. Authority-oriented. Safety-first. Black and white thinking common. Follows chain of command.",
+                    communication: "Commanding presence. Clear direct instructions. 'Us vs them' mentality possible. Report writing extensive. Authoritative tone. Interview skilled.",
+                    values: "Order and law. Service to community. Brotherhood/sisterhood intense. Protecting people. Respect for authority. Sacrifice. Doing duty.",
+                    financial: "Decent pay with overtime. Benefits strong usually. Pension crucial. Second jobs common. Union protected. Stable income.",
+                    stressors: "Constant danger. PTSD from traumatic calls. Public scrutiny intense. Department politics. Shift work destroying health. Family strain. Criticism.",
+                    social: "Extremely tight bonds with fellow officers. Separates from civilians often. Family often law enforcement too. Trust issues. Insular community.",
+                    bodyLanguage: "Constant situational awareness. Authoritative posture. Assesses threats automatically. Hypervigilant. Command presence. Weapon awareness. Alert always.",
+                    redFlags: "PTSD epidemic. Domestic violence rates higher. 'Us vs them' thinking. Corruption potential. Burnout. Alcohol abuse. Difficulty with authority questioning."
+                }
+            },
+            {
+                id: 12,
+                name: "Social Worker",
+                category: "Public Service",
+                age: 32,
+                income: "Low-Middle ($40k-55k)",
+                education: "Masters (MSW)",
+                religion: "Varied/Spiritual",
+                location: "Urban/Suburban",
+                icon: "🤝",
+                traits: {
+                    decisionMaking: "Client-centered always. Systemic thinking. Advocates within constraints. Trauma-informed approach. Empathetic but boundaries crucial. Case-by-case.",
+                    communication: "Exceptional empathetic listener. Non-judgmental. Mediates conflicts. Documents extensively. Advocates fiercely but diplomatically. Respectful.",
+                    values: "Social justice. Client empowerment. Systemic change. Helping vulnerable populations. Equity. Voice for voiceless. Dignity for all.",
+                    financial: "Severely underpaid for education level. Massive student debt burden. Passion over profit. Benefits decent usually. Financial stress. Loan forgiveness hoping.",
+                    stressors: "Extremely low pay. Crushing caseloads. Vicarious trauma constant. Bureaucracy frustrating. Limited resources. Burnout epidemic. Systemic failures witness.",
+                    social: "Support from fellow workers essential. Personal boundaries important but difficult. Attracts other helpers. Social justice circles. Everyone seeks advice.",
+                    bodyLanguage: "Open accepting posture. Active listening visible. Notices distress immediately. Tired often. Warm presence. Empathy radiates. Carrying weight.",
+                    redFlags: "Compassion fatigue severe. Boundary issues common. Vicarious trauma. Burnout leading to cynicism. Depression. Difficulty disconnecting. Martyrdom."
+                }
+            },
+            {
+                id: 13,
+                name: "Truck Driver (Long-haul)",
+                category: "Transportation",
+                age: 45,
+                income: "Middle ($45k-70k)",
+                education: "High School + CDL",
+                religion: "Varied",
+                location: "Route-based",
+                icon: "🚛",
+                traits: {
+                    decisionMaking: "Independent self-reliant. Time management crucial. Safety-first. Route optimization. Practical. Solitary decision-making. Self-sufficient.",
+                    communication: "Comfortable with solitude. CB radio culture. Direct no-nonsense. Phone relationships. Limited in-person social. Straightforward.",
+                    values: "Independence and freedom. Reliability. Seeing country. Providing for family. Self-sufficiency. Open road. Being own boss (somewhat).",
+                    financial: "Decent pay but away from home constantly. Per diem. Owner-operator vs company driver trade-offs. Retirement planning. Savings possible.",
+                    stressors: "Severe loneliness. Family separation painful. Health issues from sedentary. Regulations. Traffic. Difficult shippers/receivers. Sleep disruption.",
+                    social: "Extremely transient relationships. Truck stop culture. Phone-dependent family connection. Isolated by nature. Missing milestones. Lonely.",
+                    bodyLanguage: "Road-weary. Sedentary health issues visible. Comfortable in cab. Practical everything. Tired eyes. Independent demeanor. Weathered.",
+                    redFlags: "Health neglect severe. Family strain and divorce. Substance use. Automation threat. Loneliness depression. Physical deterioration. Isolation."
+                }
+            },
+            {
+                id: 14,
+                name: "Retail Store Manager",
+                category: "Retail",
+                age: 35,
+                income: "Lower-Middle ($35k-50k)",
+                education: "Some College/HS",
+                religion: "Varied",
+                location: "Suburban",
+                icon: "🏬",
+                traits: {
+                    decisionMaking: "People-management focused. Balances corporate pressure and staff needs. Inventory-conscious. Customer-first mandate. Problem-solving daily. Pragmatic.",
+                    communication: "Diplomatic with customers. Motivational with staff. Negotiates complaints. Corporate speak fluent. Multi-audience communicator. De-escalation skilled.",
+                    values: "Team success. Customer service. Hitting targets. Problem-solving. Fairness to staff (tries). Store pride. Professional development.",
+                    financial: "Lower income than responsibility warrants. Modest benefits. Bonus tied to sales targets. Living paycheck to paycheck often. Limited growth potential.",
+                    stressors: "Extremely difficult customers. Staffing issues constant. Corporate pressure unrealistic. Long irregular hours. Holiday season brutal. Theft. Turnover.",
+                    social: "Staff relationships but high turnover. Community known face. Work dominates life schedule. Limited personal time. Family time sacrificed.",
+                    bodyLanguage: "Friendly professional always 'on'. Tired visible. Multitasking constantly. Service smile. Stress shows. Approachable demeanor. Worn.",
+                    redFlags: "Burnout. Exploitation by corporate. Staff conflicts. Work-life imbalance severe. Health issues. Stress. Dead-end feeling. Undervalued."
+                }
+            },
+            {
+                id: 15,
+                name: "Corporate Executive (C-Suite)",
+                category: "Business",
+                age: 55,
+                income: "Very High ($300k-1M+)",
+                education: "MBA/Top School",
+                religion: "Varied",
+                location: "Urban",
+                icon: "👔",
+                traits: {
+                    decisionMaking: "Strategic long-term. Delegates extensively. Considers organizational politics. Board-conscious. Risk-managed. Power dynamics. Legacy-minded.",
+                    communication: "Polished diplomatic. Controls narrative. Media-trained. Inspirational speeches. Executive presence. Measured words. Networking master.",
+                    values: "Legacy building. Organizational success. Power and influence. Shareholder value. Leadership. Status. Achievement. Strategic vision.",
+                    financial: "Extreme wealth. Stock options and equity. Estate planning. Philanthropy. Multiple properties. Sophisticated wealth management. Generational wealth.",
+                    stressors: "Constant scrutiny. Board pressure. Market expectations. Activist investors. Competition. Succession planning anxiety. Public image. Performance pressure.",
+                    social: "Exclusive elite networks. Country club membership. Philanthropy boards. Carefully curated public image. Transactional relationships. Power circles.",
+                    bodyLanguage: "Commanding presence naturally. Measured gestures. Maintains composure. Power dynamics awareness. Designer everything. Confidence. Authority.",
+                    redFlags: "Disconnected from ground reality. Yes-men surround. Ethical compromises for results. Arrogance. Work addiction. Family neglect. Ego."
+                }
+            },
+            {
+                id: 16,
+                name: "Stay-at-Home Parent",
+                category: "Family",
+                age: 36,
+                income: "Household Dependent",
+                education: "Varied",
+                religion: "Varied",
+                location: "Suburban",
+                icon: "👶",
+                traits: {
+                    decisionMaking: "Child-centered all decisions. Household management. Long-term child development. Budget-conscious. Family schedule orchestrator. Sacrifice-based.",
+                    communication: "Kid-interrupted constantly. Multitasking conversations. Social with other parents. Adult conversation hungry. Patient explainer. Mediator.",
+                    values: "Child development. Family stability. Being present. Partnership. Sacrifice. Household efficiency. Quality time. Nurturing.",
+                    financial: "Completely financially dependent. No retirement savings personal. Vulnerable. Household budget manager. Clips coupons. Resourceful with less.",
+                    stressors: "Isolation severe. Identity loss. Undervalued invisible work. Financial dependence vulnerability. Judgment from others. No breaks. Re-entry anxiety.",
+                    social: "Parent groups. School community. Limited adult interaction. Online connection important. Isolation. Playdate circuit. Identity outside parenting lost.",
+                    bodyLanguage: "Constantly alert to children. Tired chronically. Practical clothing. Multi-tasking visible. Warm nurturing. Exhaustion. Patience tested.",
+                    redFlags: "Depression common. Identity crisis. Financial vulnerability. Relationship power imbalance. Re-entry to workforce difficulties. Resentment. Isolation."
+                }
+            },
+            {
+                id: 17,
+                name: "Uber/Lyft Driver",
+                category: "Gig Economy",
+                age: 39,
+                income: "Low ($20k-35k)",
+                education: "Varied",
+                religion: "Varied",
+                location: "Urban/Suburban",
+                icon: "🚗",
+                traits: {
+                    decisionMaking: "Flexibility-seeking. Supplemental income or necessity. Algorithm-managed work. Hour-by-hour choices. Surge pricing awareness.",
+                    communication: "Customer service mode. Small talk skilled. Varied interactions. Rating-conscious. Professional friendly. Boundaries with passengers.",
+                    values: "Independence. Flexibility. Making ends meet. Customer service. Efficiency. Being own schedule. Supplementing income.",
+                    financial: "Very low net income after expenses. Car depreciation huge. Gas costs. No benefits or stability. Tax complications. Barely surviving.",
+                    stressors: "Low pay after all expenses. Car depreciation anxiety. No benefits. Algorithm control. Passenger safety concerns. Rating system stress. Wear on vehicle.",
+                    social: "Transient interactions. Isolated work. Other drivers online only. Family time flexible. Conversation varies wildly. Lonely work.",
+                    bodyLanguage: "Service-oriented. Tired. Car is office. Rating smile. Varied based on passenger. Accommodating. Worn down.",
+                    redFlags: "Severe economic vulnerability. No safety net. Vehicle breakdown financial crisis. Exploitation by platform. Dead-end. Trapped feeling."
+                }
+            },
+            {
+                id: 18,
+                name: "Prison Guard/Corrections Officer",
+                category: "Law Enforcement",
+                age: 37,
+                income: "Middle ($40k-65k)",
+                education: "HS/Some College",
+                religion: "Varied",
+                location: "Near Facility",
+                icon: "🔒",
+                traits: {
+                    decisionMaking: "Protocol-driven strictly. Threat assessment constant. Dehumanization risk. Order maintenance. Safety-first. Institutional thinking.",
+                    communication: "Authoritarian. Clear commands. Us vs them mentality strong. Hardened. Direct. Prison culture language. Controlled.",
+                    values: "Order. Safety. Doing time. Union solidarity. Paycheck. Early retirement goal. Control. Authority.",
+                    financial: "Decent pay. Benefits usually good. Overtime. Pension crucial. Union protected. Stable income. Retirement focused.",
+                    stressors: "Violence risk daily. PTSD. Moral injury. Dehumanization process. Corruption exposure. Traumatic incidents. Family strain. Burnout.",
+                    social: "CO community only understand. Civilians don't get it. Isolated by work. Dark humor coping. Family affected. Insular world.",
+                    bodyLanguage: "Authoritative. Constantly hypervigilant. Hardened exterior. Prison culture visible. Aggressive posture. Controlled. Alert always.",
+                    redFlags: "Severe PTSD. Dehumanization of prisoners. Corruption. Domestic violence rates high. Substance abuse. Moral injury. Cynicism extreme."
+                }
+            },
+            {
+                id: 19,
+                name: "Graduate Student (PhD)",
+                category: "Student",
+                age: 28,
+                income: "Very Low ($20k-30k)",
+                education: "Masters pursuing PhD",
+                religion: "Often Secular",
+                location: "University Town",
+                icon: "🎓",
+                traits: {
+                    decisionMaking: "Long-term commitment. Intellectually driven. Specialization deep. Sunk cost aware. Research-focused. Academic culture absorbed.",
+                    communication: "Academic language. Theoretical discussions natural. Teaching experience. Conference culture. Niche expertise. Intellectual.",
+                    values: "Knowledge contribution. Research. Teaching. Intellectual community. Field advancement. Perseverance. Academic calling.",
+                    financial: "Poverty wages on stipend. Debt accumulation. Delayed financial maturity. Hopes academia will pay off eventually. Living like student.",
+                    stressors: "Poverty wages. Advisor relationship power. Imposter syndrome. Job market anxiety terrible. Isolation. Publish or perish pressure. Uncertainty.",
+                    social: "Cohort bonding intense. Academic bubble. Dating challenges. Age-milestone dissonance with peers. Limited outside academia. Niche community.",
+                    bodyLanguage: "Intellectual intensity. Chronically tired. Casual academic attire. Gestures explaining. Coffee-dependent. Stressed. Passionate about topic.",
+                    redFlags: "Mental health crisis epidemic. Advisor exploitation. High dropping out rate. Terrible career prospects. Depression. Anxiety. Trapped feeling."
+                }
+            },
+            {
+                id: 20,
+                name: "Firefighter",
+                category: "Public Safety",
+                age: 33,
+                income: "Middle ($45k-75k)",
+                education: "HS/Some College",
+                religion: "Often Religious",
+                location: "Urban/Suburban",
+                icon: "🚒",
+                traits: {
+                    decisionMaking: "Team-oriented completely. Training-dependent. Rushes toward danger. Calm in chaos. Protocol but adapts. Brotherhood decisions.",
+                    communication: "Strong team communication. Brotherhood culture. Community-engaged. Humble heroes. Stories but not bragging. Relatable.",
+                    values: "Service. Courage. Teamwork above all. Saving lives. Physical fitness. Tradition. Brotherhood. Sacrifice. Community respect.",
+                    financial: "Decent pay. Benefits good usually. Pension. Work second jobs during off shifts. Overtime. Stable middle class.",
+                    stressors: "Traumatic calls regular. Cancer risks from exposure. PTSD. Physical demands. Sleep disruption. Survivor guilt. Seeing death.",
+                    social: "Firehouse family intense. Pranks and bonding. Community highly respected. Strong marriages or divorces. Limited outside friendships.",
+                    bodyLanguage: "Physically fit. Confident. Team-oriented movement. Relaxed but ready. Scan for hazards. Approachable. Strong presence.",
+                    redFlags: "PTSD. Substance abuse. Divorce. Hazing culture. Difficult retirement transition. Identity crisis leaving. Hypermasculinity issues."
+                }
+            },
+            {
+                id: 21,
+                name: "Therapist/Psychologist",
+                category: "Healthcare",
+                age: 45,
+                income: "Middle-High ($60k-120k)",
+                education: "PhD/PsyD/Masters",
+                religion: "Varied/Spiritual",
+                location: "Urban/Suburban",
+                icon: "🧠",
+                traits: {
+                    decisionMaking: "Process-oriented. Explores underlying motivations. Patient approach. Non-judgmental. Considers multiple perspectives. Thoughtful.",
+                    communication: "Master active listener. Reflective questions. Non-verbal cues expert. Creates safe space. Empathetic. Measured responses. Present.",
+                    values: "Human potential. Healing. Emotional honesty. Reducing stigma. Growth mindset. Helping people. Therapeutic relationship. Authenticity.",
+                    financial: "Variable income especially private practice. Insurance battles. Ethical about money. Values over wealth. Student debt. Building practice.",
+                    stressors: "Vicarious trauma constant. Insurance nightmares. Building practice stress. Maintaining boundaries. Own mental health. Hearing trauma daily.",
+                    social: "Can't turn off analyzing. Attracts people seeking free therapy. Guards personal life carefully. Therapist friends. Boundaries crucial.",
+                    bodyLanguage: "Open posture. Consistent gentle eye contact. Notices micro-expressions. Measured responses. Calm presence. Therapeutic neutrality.",
+                    redFlags: "Can overanalyze personal relationships. May attract codependent dynamics. Burnout from emotional labor. Transference issues. Compassion fatigue."
+                }
+            },
+            {
+                id: 22,
+                name: "Construction Worker",
+                category: "Trades",
+                age: 32,
+                income: "Low-Middle ($35k-55k)",
+                education: "High School",
+                religion: "Often Religious",
+                location: "Suburban/Rural",
+                icon: "👷",
+                traits: {
+                    decisionMaking: "Practical hands-on. Follows foreman direction. Safety-conscious (when enforced). Weather-dependent. Team coordination. Physical problem-solving.",
+                    communication: "Direct sometimes rough. Strong team banter. Respects hierarchy. Physical communication. Straightforward. Working class dialect.",
+                    values: "Hard work. Loyalty to crew. Providing for family. Visible tangible results. Team camaraderie. Traditional masculinity. Pride in building.",
+                    financial: "Modest income. Overtime needed for decent living. Lives paycheck to paycheck often. Benefits variable. Union helps. Physical toll.",
+                    stressors: "Physical toll brutal. Job instability. Weather. Low pay. Injury risk high. Aging out. Economic vulnerability. Dangerous conditions.",
+                    social: "Crew bonding very strong. Traditional masculinity. Family-centered off work. Community roots. Limited upward mobility socially.",
+                    bodyLanguage: "Strong physical presence. Practical work attire. Visible tiredness. Weather-worn. Injuries common. Callused hands. Practical demeanor.",
+                    redFlags: "Substance abuse coping. Injury disability. Limited career growth. Economic vulnerability severe. Domestic strain. Health neglect."
+                }
+            },
+            {
+                id: 23,
+                name: "Actor/Performer",
+                category: "Creative",
+                age: 28,
+                income: "Low (with high variance)",
+                education: "Varied",
+                religion: "Varied/Spiritual",
+                location: "LA/NY/Major City",
+                icon: "🎭",
+                traits: {
+                    decisionMaking: "Opportunity-driven. Rejection tolerance necessary. Calculated risk-taking for roles. Networking crucial. Audition-focused life.",
+                    communication: "Charismatic expressive. Skilled at code-switching. Tells engaging stories. Performs always. Emotionally available. Attention-seeking.",
+                    values: "Artistic expression. Fame (for some). Craft mastery. Authenticity (claimed). Audience connection. Validation. Success. Recognition.",
+                    financial: "Multiple survival jobs. Irregular windfalls. Extremely difficult planning. Union benefits when possible. Poverty with hope.",
+                    stressors: "Constant rejection crushing. Financial instability severe. Typecasting. Aging concerns. Industry exploitation. Comparison. Relevance anxiety.",
+                    social: "Wide but shallow networks. Industry events crucial. Publicist relationships. Fan dynamics. Real friendships complicated. Always networking.",
+                    bodyLanguage: "Highly expressive. Aware of being watched. Performs even when 'off'. Energetic presence. Curated appearance. Charismatic.",
+                    redFlags: "Narcissism. Substance abuse common. Exploitation vulnerability. Identity tied to success. Mental health. Instability. Burnout."
+                }
+            },
+            {
+                id: 24,
+                name: "Journalist/Writer",
+                category: "Creative",
+                age: 39,
+                income: "Low-Middle ($35k-65k)",
+                education: "Bachelors/Masters",
+                religion: "Varied",
+                location: "Urban",
+                icon: "✍️",
+                traits: {
+                    decisionMaking: "Story-driven. Seeks truth and narrative. Deadline-oriented. Ethical considerations central. Investigation-focused. Skeptical nature.",
+                    communication: "Articulate precise. Asks probing questions. Active listener. Skeptical by training. Storytelling natural. Direct.",
+                    values: "Truth-telling. Freedom of press. Giving voice to voiceless. Craft. Public service. Accountability. Democracy. Exposing injustice.",
+                    financial: "Struggling profession collapsing. Low pay. Side hustles necessary. Freelance instability. Passion over profit. Debt.",
+                    stressors: "Industry collapse. Extremely low pay. Dangerous assignments sometimes. Online harassment. Source protection. Layoffs. Irrelevance anxiety.",
+                    social: "Source networks crucial. Newsroom camaraderie. Often cynical. Observes more than participates. Trust issues. Work-focused life.",
+                    bodyLanguage: "Observant constantly. Takes mental notes. Asks follow-ups. Poker face when needed. Notebook ready. Analytical gaze.",
+                    redFlags: "Cynicism defense mechanism. Boundary issues with sources. Burnout. Substance abuse. Voyeurism. Depression. Financial stress."
+                }
+            },
+            {
+                id: 25,
+                name: "Warehouse Worker",
+                category: "Logistics",
+                age: 29,
+                income: "Low-Middle ($30k-45k)",
+                education: "High School",
+                religion: "Varied",
+                location: "Industrial Area",
+                icon: "📦",
+                traits: {
+                    decisionMaking: "Task-focused. Productivity-driven by metrics. Safety-conscious. Algorithm-managed (Amazon etc). Efficient movements. Repetitive.",
+                    communication: "Limited during work. Team coordination basic. Union talk sometimes. Direct. Time pressure visible. Minimal socializing.",
+                    values: "Hard work. Paycheck. Team efficiency. Making rate quotas. Benefits access. Job security. Providing for family.",
+                    financial: "Hourly wage. Overtime available often. Benefits if full-time. Living paycheck to paycheck often. Limited savings. Stable-ish.",
+                    stressors: "Brutal physical demands. Productivity pressure extreme. Repetitive motion injuries. Heat/cold exposure. Injury risk. Algorithm surveillance dystopian.",
+                    social: "Coworker relationships. Shift-based socializing. Limited outside work due to exhaustion. Family time prioritized when possible.",
+                    bodyLanguage: "Physical job visible on body. Safety gear. Chronically tired. Practical everything. Efficient movement. Worn down.",
+                    redFlags: "Injury common. Repetitive stress. Surveillance stress. Limited career growth. Automation threat. Exhaustion. Exploitation."
+                }
+            },
+            {
+                id: 26,
+                name: "Hair Stylist/Barber",
+                category: "Service",
+                age: 34,
+                income: "Low-Middle ($25k-50k)",
+                education: "Cosmetology School",
+                religion: "Varied",
+                location: "Suburban/Urban",
+                icon: "✂️",
+                traits: {
+                    decisionMaking: "Creative but client-driven. Building loyal clientele crucial. Entrepreneurial within constraints. Service-oriented. Scheduling-focused.",
+                    communication: "Excellent conversationalist. Plays therapist role. Gossip network hub. Knows everything local. Personable. Warm.",
+                    values: "Personal connection. Artistic skill. Independence. Community. Making people feel good. Relationship-building. Craft pride.",
+                    financial: "Inconsistent income. Tip-dependent heavily. Commission vs booth rent. Self-employed taxes complex. Unpredictable. Supply costs.",
+                    stressors: "Standing all day physical toll. Client retention anxiety. Booth rent pressure. Difficult demanding clients. Income variability. Limited vacation.",
+                    social: "Strong local network. Knows everyone's business. Client relationships deep sometimes. Gossip central. Community hub.",
+                    bodyLanguage: "Warm welcoming. Close physical proximity comfort. Reads mood quickly. Professional appearance. Tired feet. Friendly demeanor.",
+                    redFlags: "Gossip boundary issues. Physical strain injuries cumulative. Income instability stress. Difficulty scaling business. Burnout."
+                }
+            },
+            {
+                id: 27,
+                name: "Social Media Influencer",
+                category: "Digital/Creative",
+                age: 24,
+                income: "Variable (Low to Very High)",
+                education: "Some College/HS",
+                religion: "Varied/Spiritual",
+                location: "Urban (LA/NYC)",
+                icon: "📱",
+                traits: {
+                    decisionMaking: "Engagement-driven everything. Trend-chasing constant. Brand-conscious. Algorithm-aware. Metrics-obsessed. Opportunistic.",
+                    communication: "Performative. Authentic-seeming curation. Responds to followers. Sales pitches constant. Parasocial relationship manager.",
+                    values: "Creativity. Authenticity (claimed heavily). Connection (parasocial). Freedom. Influence. Building brand. Experiences for content. Relevance.",
+                    financial: "Wildly variable income. Brand deals. Merchandise. No stability. Tax complications. Lifestyle inflation. Money as scorecard.",
+                    stressors: "Algorithm changes destroy income. Privacy loss complete. Constant content pressure. Comparison toxic. Burnout. Relevance anxiety. Scrutiny.",
+                    social: "Parasocial relationships dominant. Industry networking. Real friendships complicated. Always performing. Trust issues. Transactional.",
+                    bodyLanguage: "Camera-ready always. Aware of angles constantly. Curated appearance. Performative authenticity. Aesthetic-focused. Ring light ready.",
+                    redFlags: "Mental health from scrutiny. Income instability. Identity fusion with brand. Exploitation. Narcissism. Anxiety. Depression."
+                }
+            },
+            {
+                id: 28,
+                name: "Pilot (Commercial)",
+                category: "Specialized",
+                age: 44,
+                income: "High-Very High ($80k-300k+)",
+                education: "Bachelors + Flight Training",
+                religion: "Varied",
+                location: "Near Hub Airport",
+                icon: "✈️",
+                traits: {
+                    decisionMaking: "Safety-obsessed. Protocol-driven strictly. Calm under pressure. Systems thinking. Checklist mentality. Risk-managed carefully.",
+                    communication: "Clear direct. Checklist communication. Authority in cockpit. Professional with crew. Calm demeanor. Confident.",
+                    values: "Safety paramount. Competence. Precision. Responsibility. Love of flying. Adventure. Seeing world. Professional pride.",
+                    financial: "High income after seniority years. Initially low pay regional airlines. Seniority-based everything. Benefits good. Union.",
+                    stressors: "Schedule disruption constant. Time zones destroying health. Family time limited. Medical certification anxiety. Automation concerns. Crashes trauma.",
+                    social: "Crew relationships. Often traveling away. Dating challenges. Aviation community. Limited local friendships. Family strain.",
+                    bodyLanguage: "Confident. Uniform pride. Calm demeanor. Authoritative but approachable. Composed. Professional bearing. Alert.",
+                    redFlags: "Substance abuse risk. Relationship strain high. Medical anxiety. Automation displacement threat. Identity crisis retirement."
+                }
+            },
+            {
+                id: 29,
+                name: "Clergy/Religious Leader",
+                category: "Religious",
+                age: 51,
+                income: "Low-Middle ($35k-60k)",
+                education: "Seminary/Religious Study",
+                religion: "Devout in Tradition",
+                location: "Community-based",
+                icon: "⛪",
+                traits: {
+                    decisionMaking: "Faith-guided. Community welfare priority. Ethical framework central. Pastoral care focused. Traditional values. Service-oriented.",
+                    communication: "Compassionate listener. Spiritual counselor. Public speaking skilled. Non-judgmental ideally. Wise counsel. Comforting presence.",
+                    values: "Faith. Service to God and community. Tradition. Spiritual growth. Helping souls. Moral guidance. Ritual. Calling.",
+                    financial: "Low income often. Provided housing sometimes. Relies on faith and congregation support. Minimal wealth. Vow of simplicity sometimes.",
+                    stressors: "Emotional burden heavy. Always on call. Crisis support constant. Faith questions personal. Institutional issues. Very low pay.",
+                    social: "Central community role. Boundaries challenging. Everyone knows them. Isolated by position. Confidant role. Limited privacy.",
+                    bodyLanguage: "Warm presence. Open posture. Listening stance. Ritual movements. Robed often. Peaceful demeanor. Approachable.",
+                    redFlags: "Burnout severe. Faith crisis. Boundary violations. Scandal impact devastating. Isolation. Depression. Abuse of power."
+                }
+            },
+            {
+                id: 30,
+                name: "Accountant",
+                category: "Finance",
+                age: 43,
+                income: "Middle-High ($60k-100k)",
+                education: "Bachelors + CPA",
+                religion: "Varied",
+                location: "Suburban/Urban",
+                icon: "🧮",
+                traits: {
+                    decisionMaking: "Extremely risk-averse. Methodical systematic. Rules-based strictly. Detail obsessed. Checks work multiple times. Conservative.",
+                    communication: "Precise literal. Uncomfortable with ambiguity. Prefers written documentation. Reserved. Numbers over words. Technical.",
+                    values: "Accuracy. Compliance. Stability. Order. Thoroughness. Professional ethics. Following rules. Reputation protection.",
+                    financial: "Excellent personal finance. Conservative investor. Maxes retirement accounts. Budget master. Plans everything. Risk-averse investments.",
+                    stressors: "Tax season absolute crunch. Responsibility for others' finances. Regulation changes constant. Reputation risk. Liability anxiety.",
+                    social: "Small circle. Prefers routine social activities. Often introverted. Reliable steady friend. Limited spontaneity. Trustworthy.",
+                    bodyLanguage: "Controlled movements. Careful speech. Poker face. Notices numerical discrepancies. Conservative dress. Measured everything.",
+                    redFlags: "Can be rigid inflexible. Difficulty with gray areas. May lack spontaneity. Anxiety. Perfectionism paralysis."
+                }
+            },
+            {
+                id: 31,
+                name: "Military Veteran (Transitioned)",
+                category: "Military",
+                age: 38,
+                income: "Variable",
+                education: "HS to Bachelors",
+                religion: "Often Religious",
+                location: "Varied",
+                icon: "🎖️",
+                traits: {
+                    decisionMaking: "Mission-oriented. Values structure. Leadership experience. Adapting to civilian ambiguity difficult. Disciplined. Strategic.",
+                    communication: "Direct. Leadership skills strong. Struggles with corporate politics. Values authenticity. Rank-aware conditioning remains.",
+                    values: "Service. Purpose. Loyalty. Team. Translating military skills. Finding meaning post-service. Honor. Duty. Brotherhood.",
+                    financial: "Variable widely. VA benefits. Using GI Bill. May struggle or thrive depending on transition support. Disability compensation sometimes.",
+                    stressors: "Identity loss severe. PTSD. Civilian disconnect profound. Underemployment. Missing military camaraderie intensely. VA system navigation. Purpose crisis.",
+                    social: "Seeks veteran community desperately. Civilian relationships can feel shallow. Family readjustment difficult. Trust issues. Reintegration hard.",
+                    bodyLanguage: "Military bearing remains. Situational awareness constant. Struggles with vulnerability. Disciplined posture. Hypervigilance. Guarded.",
+                    redFlags: "Suicide risk higher than average. PTSD untreated. Substance abuse. Homelessness risk. Purpose crisis. Anger issues."
+                }
+            },
+            {
+                id: 32,
+                name: "First-Generation Immigrant (Professional)",
+                category: "Immigrant Experience",
+                age: 37,
+                income: "Middle-High ($65k-120k)",
+                education: "Bachelors/Masters",
+                religion: "Maintains Heritage",
+                location: "Urban",
+                icon: "🌍",
+                traits: {
+                    decisionMaking: "Already huge risk-taker. Strategic about opportunities. Values education intensely. Long-term oriented. Sacrificial for family.",
+                    communication: "Often multilingual. Code-switches cultures. Deliberate word choice. Cultural negotiator. Bridge between worlds.",
+                    values: "Family support paramount. Education. Advancement. Proving worth. Maintaining heritage. Gratitude. Sacrifice. Opportunity.",
+                    financial: "Sends remittances home regularly. High savings rate. Conservative investments. Education priority for children. Frugal. Asset-building focused.",
+                    stressors: "Imposter syndrome. Intense family pressure. Cultural navigation exhausting. Discrimination. Remittances burden. Never fully belonging. Identity.",
+                    social: "Dual cultural circles. Immigrant community support crucial. Navigates dominant culture. Bridge role. Limited truly close friendships.",
+                    bodyLanguage: "Confident but status-aware. Cultural gestures mixed. Formal in professional settings. Respectful. Adapts presentation.",
+                    redFlags: "Overwork epidemic. Crushing family pressure. Isolation. Discrimination trauma. Identity conflicts. Parentification of children."
+                }
+            },
+            {
+                id: 33,
+                name: "Homeless Individual (Chronic)",
+                category: "Marginalized",
+                age: 47,
+                income: "Extremely Low",
+                education: "Varied",
+                religion: "Varied/Spiritual",
+                location: "Urban",
+                icon: "🏚️",
+                traits: {
+                    decisionMaking: "Survival mode constantly. Day-to-day focus only. Street-smart. System navigator. Trauma-impacted thinking. Immediate needs.",
+                    communication: "Guarded or oversharing extremes. Mental health may impact. Seeks connection. System-experienced. Survival stories.",
+                    values: "Survival. Dignity despite circumstances. Community with others. Next meal. Safety. Moments of joy. Hope varies.",
+                    financial: "Panhandling. Benefits if can access. Survival economy. Cash-based. No banking. Day labor sometimes. Absolutely nothing.",
+                    stressors: "Everything. Safety constant threat. Food insecurity. Shelter. Health crisis. Weather. Stigma crushing. Trauma. Substances. Hopelessness.",
+                    social: "Homeless community crucial. Shelter relationships. May avoid or seek services. Profound isolation. Dehumanization experienced.",
+                    bodyLanguage: "Weathered appearance. Hypervigilant or withdrawn. Survival visible. Carries belongings. Defeated posture sometimes. Invisible to many.",
+                    redFlags: "Health crisis imminent. Violence risk. Substance dependence. Mental health crisis. Complete system failure. Vulnerable to everything."
+                }
+            },
+            {
+                id: 34,
+                name: "Single Parent (Low Income)",
+                category: "Family Structures",
+                age: 33,
+                income: "Low ($20k-35k)",
+                education: "HS/Some College",
+                religion: "Varied",
+                location: "Urban/Suburban",
+                icon: "👨‍👧",
+                traits: {
+                    decisionMaking: "Children-first always. Survival juggling act. Short-term necessity. Limited options. Sacrifice everything for kids.",
+                    communication: "Multitasking communication. Exhausted always. Advocates fiercely for children. Asks for help reluctantly. Direct about needs.",
+                    values: "Children's welfare above all. Stability seeking. Independence. Strength. Hope for better future. Love. Protection.",
+                    financial: "Lives absolutely paycheck to paycheck. Benefits if qualify. Childcare costs astronomical. Debt common. One emergency from crisis.",
+                    stressors: "Crushing financial strain. Childcare nightmare. No backup ever. Time scarcity. Guilt constant. Complete exhaustion. Isolation. Judgment.",
+                    social: "Extremely limited time. Other single parents. Family support crucial if exists. School community. Isolation common.",
+                    bodyLanguage: "Exhaustion visible. Determined. Protective of children. Multitasking visible. Stress evident. Worn but persevering.",
+                    redFlags: "Burnout. Health neglect severe. Depression. Exploitative relationships vulnerability. System navigation difficulty. Crisis imminent always."
+                }
+            },
+            {
+                id: 35,
+                name: "Formerly Incarcerated Person",
+                category: "Justice-Involved",
+                age: 36,
+                income: "Very Low",
+                education: "High School",
+                religion: "Often Found Faith",
+                location: "Urban",
+                icon: "⚖️",
+                traits: {
+                    decisionMaking: "Reentry focused. Navigating massive barriers. Day-to-day survival. Rebuilding trust slowly. System-aware. Cautious.",
+                    communication: "Guarded. Institutional influence visible. May be direct or closed off. Rebuilding social skills. Honest about past sometimes.",
+                    values: "Second chances. Redemption. Family reconnection. Stability. Proving worth. Staying clean/out. Fresh start. Hope.",
+                    financial: "Extreme poverty. Employment barriers crushing. Ban the box battles. Day labor. Cash economy. Debt and fines. Nothing.",
+                    stressors: "Employment discrimination. Housing discrimination. Parole restrictions. Stigma everywhere. Family rebuilding. Relapse risk. System obstacles endless. Despair.",
+                    social: "Reconnecting with family difficult. Avoiding old networks crucial. Reentry community support. Building new relationships. Trust issues.",
+                    bodyLanguage: "Institutional bearing. Cautious. Rebuilding confidence. Signs of incarceration visible sometimes. Guarded. Hopeful or defeated.",
+                    redFlags: "Recidivism risk from barriers. Substance relapse. Despair from obstacles. Trauma unaddressed. System setup for failure."
+                }
+            },
+            {
+                id: 36,
+                name: "Professional Athlete",
+                category: "Sports",
+                age: 26,
+                income: "Variable (High potential)",
+                education: "Some College/HS",
+                religion: "Varied",
+                location: "Team City",
+                icon: "⚽",
+                traits: {
+                    decisionMaking: "Performance-focused. Coached throughout life. Short career awareness. Agent-dependent. Competitive everything. Present-focused.",
+                    communication: "Media-trained. Confident. Team language. Motivational. Guarded with press. Inspirational speaking.",
+                    values: "Excellence. Competition. Winning. Legacy. Team. Physical peak. Fan connection. Sport love. Proving doubters wrong.",
+                    financial: "High variance by sport. Financial literacy often poor. Surrounded by advisors (good and bad). Lifestyle inflation. Retirement unplanned.",
+                    stressors: "Injury career-ending. Performance pressure intense. Short career timeline. Media scrutiny. Transition anxiety. Identity tied to sport.",
+                    social: "Fame bubble. Tight teammate bonds. Trust issues with new people. Hangers-on everywhere. Relationship challenges. Isolation despite visibility.",
+                    bodyLanguage: "Peak physical condition. Confident. Competitive energy always. Media-aware posture. Brand conscious. Athletic bearing.",
+                    redFlags: "Injury ending career suddenly. Financial exploitation common. Substance abuse. Identity crisis post-career. CTE concerns. Bankruptcy."
+                }
+            },
+            {
+                id: 37,
+                name: "University Professor",
+                category: "Education",
+                age: 52,
+                income: "Middle-High ($70k-120k)",
+                education: "PhD",
+                religion: "Often Secular",
+                location: "College Town",
+                icon: "👨‍🏫",
+                traits: {
+                    decisionMaking: "Theory-driven. Seeks nuance and complexity. Long time horizons. Skeptical of simple solutions. Evidence-based ideally.",
+                    communication: "Lectures naturally. Pedantic tendencies. Debates for intellectual sport. Values rigorous argument. References constantly.",
+                    values: "Knowledge for its own sake. Academic freedom. Critical thinking. Mentorship. Contribution to field. Intellectual community.",
+                    financial: "Stable but not wealthy. Grant-dependent sometimes. Student debt paid off eventually. Values sabbaticals and flexibility over salary.",
+                    stressors: "Publish or perish pressure. Grant writing nightmare. Academic politics brutal. Tenure pressure. Relevance questions. Student issues.",
+                    social: "Intellectually elitist circles. Conference networks. Former student connections. Mentorship focused. May lack broad social skills.",
+                    bodyLanguage: "Thoughtful pauses. References literature constantly. Comfortable with silence while thinking. Casual academic attire. Professorial bearing.",
+                    redFlags: "Out of touch with 'real world'. May talk down to others. Ivory tower syndrome. Difficulty with practical matters."
+                }
+            },
+            {
+                id: 38,
+                name: "Scientist/Researcher",
+                category: "Academia/Research",
+                age: 41,
+                income: "Middle ($55k-90k)",
+                education: "PhD",
+                religion: "Often Secular",
+                location: "University/Research Center",
+                icon: "🔬",
+                traits: {
+                    decisionMaking: "Rigorously evidence-based. Hypothesis-driven. Deeply skeptical. Long-term research focus. Peer review sensitive. Methodical.",
+                    communication: "Precise technical. Loves explaining research. Uncomfortable with ambiguity. Presents data. Corrects misconceptions immediately.",
+                    values: "Discovery. Truth-seeking. Advancing knowledge. Peer recognition. Scientific method. Curiosity. Objectivity. Contribution to humanity.",
+                    financial: "Moderate income. Grant-dependent often. Student debt. Values stability and research over wealth. Academic salary acceptance.",
+                    stressors: "Grant writing consuming. Funding uncertainty. Publish pressure. Academic politics. Slow progress frustration. Relevance anxiety.",
+                    social: "Academic community. Conference networks. Niche specialization. May lack broad social skills. Intellectual friendships. Socially awkward sometimes.",
+                    bodyLanguage: "Thoughtful. Gestures when explaining. Comfortable with complexity. Lab casual attire. Intense when discussing research.",
+                    redFlags: "Funding anxiety. Impostor syndrome. Communication with public difficult. Niche isolation. Can be condescending. Socially challenged."
+                }
+            },
+            {
+                id: 39,
+                name: "Food Delivery Courier",
+                category: "Gig Economy",
+                age: 26,
+                income: "Very Low ($15k-25k)",
+                education: "Some College/HS",
+                religion: "Varied",
+                location: "Urban",
+                icon: "🚴",
+                traits: {
+                    decisionMaking: "Order-by-order. Weather-dependent. Algorithm optimization attempts. Tip-motivated. Hustle mindset. Survival.",
+                    communication: "Minimal interaction. Text-based mostly. Customer service brief. Efficient. Professional minimal.",
+                    values: "Hustle. Independence claimed. Getting by. Flexibility. Making it work. Survival. Hope for better.",
+                    financial: "Extremely low income. Expenses eat profits. No benefits whatsoever. Poverty wages. Tips crucial. Barely surviving.",
+                    stressors: "Poverty-level pay. Weather exposure. Traffic danger. Tips unpredictable. No benefits. Vehicle wear. Dangerous situations. Exploitation.",
+                    social: "Isolated work completely. Online driver groups. Limited interactions. Family or student simultaneously. Lonely hustle.",
+                    bodyLanguage: "Hustling energy. Bike/car/scooter dependent. Weather-worn. Always rushing. Tired. Practical gear. Stressed.",
+                    redFlags: "Severe economic exploitation. Injury risk high. No safety net whatsoever. Dead-end perception. Burnout. Trapped."
+                }
+            },
+            {
+                id: 40,
+                name: "Retiree (Middle Class)",
+                category: "Retired",
+                age: 68,
+                income: "Fixed (Middle)",
+                education: "Varied",
+                religion: "Often Religious",
+                location: "Suburban/Retirement Community",
+                icon: "👴",
+                traits: {
+                    decisionMaking: "Risk-averse. Health-conscious. Legacy-minded. Routine-oriented. Protective of assets. Conservative.",
+                    communication: "Storytelling natural. Advice-giving. Slower pace. Direct from different era. Technology challenged often.",
+                    values: "Family. Health. Leisure earned. Legacy. Faith often. Preserving independence. Staying relevant. Grandchildren.",
+                    financial: "Fixed income. Social security. Pension if lucky. Conservative investments. Stretched by healthcare. Frugal. Asset protection.",
+                    stressors: "Health decline. Fixed income stress. Feeling irrelevant. Loss of purpose. Losing peers and spouse. Family relationships. Healthcare costs.",
+                    social: "Smaller shrinking circle. Volunteer work. Church community often. Grandchildren focus. Friend loss. Limited new relationships.",
+                    bodyLanguage: "Slower movement. Health visible. Comfortable relaxed posture. Wisdom in expression. Aging visible. Gentle.",
+                    redFlags: "Depression common. Isolation. Scam vulnerability. Cognitive decline. Purpose loss. Loneliness epidemic."
+                }
+            },
+            {
+                id: 41,
+                name: "Community Organizer",
+                category: "Activist",
+                age: 34,
+                income: "Low ($30k-45k)",
+                education: "Bachelors",
+                religion: "Varied/Spiritual",
+                location: "Urban",
+                icon: "✊",
+                traits: {
+                    decisionMaking: "Community-centered. Coalition-building. Grassroots approach. Long-term change vision. Democratic process. Empowerment focus.",
+                    communication: "Empowering rhetoric. Exceptional active listener. Meeting facilitator. Storytelling for change. Inclusive language.",
+                    values: "Justice. Equity. Community power. Systemic change. Solidarity. Grassroots democracy. Voice for voiceless. Liberation.",
+                    financial: "Low nonprofit salary. Grant-dependent organization. Passion over money. Side gigs necessary. Barely surviving. Mission-driven.",
+                    stressors: "Very low pay. Slow frustrating progress. Opposition and threats. Burnout epidemic. Internal movement conflicts. Funding uncertainty. Trauma exposure.",
+                    social: "Deep community ties. Movement relationships. Sustaining networks crucial. Work-life blur complete. Everyone seeks them out.",
+                    bodyLanguage: "Earnest intensity. Energetic. Chronically tired. Carries community weight visibly. Hopeful despite odds. Passionate.",
+                    redFlags: "Severe burnout. Vicarious trauma. Movement infighting. Cynicism. Sacrificing self completely. Depression. Martyr complex."
+                }
+            },
+            {
+                id: 42,
+                name: "Sex Worker (Independent)",
+                category: "Adult/Stigmatized Work",
+                age: 28,
+                income: "Variable",
+                education: "Varied",
+                religion: "Varied",
+                location: "Urban",
+                icon: "💋",
+                traits: {
+                    decisionMaking: "Safety-first always. Rigorous client screening. Economic pragmatism. Boundary enforcement crucial. Risk assessment constant.",
+                    communication: "Emotional labor expert. Client management. Performs intimacy. Guards real self. Professional persona. Direct about boundaries.",
+                    values: "Autonomy. Financial independence. Safety. Stigma resistance. Sex worker community. Bodily autonomy. Survival. Control.",
+                    financial: "Can be lucrative. No benefits. Cash management. No retirement access. Vulnerable to theft. Savings difficult. Banking challenges.",
+                    stressors: "Violence risk constant. Crushing stigma. Legal precarity. Client boundary violations. Isolation from stigma. Burnout. Aging out anxiety.",
+                    social: "Sex worker community crucial. Civilian life separation. Double life often. Trust issues profound. Limited disclosure. Support system small.",
+                    bodyLanguage: "Aware of physical presence. Constant safety scanning. Performs confidence. Guarded. Assesses people. Professional demeanor.",
+                    redFlags: "Violence. Exploitation. Substance use coping. Legal vulnerability. Trauma. Stigma internalization. Isolation. PTSD."
+                }
+            },
+            {
+                id: 43,
+                name: "Political Campaign Staffer",
+                category: "Political",
+                age: 29,
+                income: "Low ($30k-50k)",
+                education: "Bachelors",
+                religion: "Varied",
+                location: "Urban/Campaign Trail",
+                icon: "🗳️",
+                traits: {
+                    decisionMaking: "Mission-driven. Fast-paced frantic. Deadline-oriented. Politically strategic. Tribal loyalty. Win-at-all-costs sometimes.",
+                    communication: "Messaging expert. Persuasive. Rapid response. Social media fluent. Talking points automatic. Spin natural.",
+                    values: "Political change. Defeating opposition. Winning election. Cause commitment. Democracy (claimed). Power. Belief in candidate.",
+                    financial: "Very low pay. Post-campaign unemployment. Passion over profit. Network for next job. Unstable. Temporary.",
+                    stressors: "Extremely long hours. Low pay. Job insecurity. Burnout inevitable. Moral compromises. Loss devastation. Cynicism.",
+                    social: "Campaign family intense. Political circles only. Us vs them mentality. Intense bonds then disperse. Limited outside life.",
+                    bodyLanguage: "High frantic energy. Phone-attached. Sleep-deprived. Passionate. War room intensity. Coffee-dependent. Stressed.",
+                    redFlags: "Severe burnout epidemic. Cynicism about democracy. Moral injury. Extreme tribalism. Difficult personal relationships. Depression post-campaign."
+                }
+            },
+            {
+                id: 44,
+                name: "College Student",
+                category: "Student",
+                age: 20,
+                income: "Very Low/Parental Support",
+                education: "In Progress",
+                religion: "Questioning/Varied",
+                location: "College Town",
+                icon: "🎓",
+                traits: {
+                    decisionMaking: "Exploratory. Identity formation. Peer-influenced heavily. Future-anxious. Risk-taking socially. Impulsive sometimes.",
+                    communication: "Digital-native. Ironic humor. Activist language. Vulnerable online. Performative aspects. Meme fluent.",
+                    values: "Authenticity seeking. Social justice. Experiences over things. Friendships intense. Finding purpose. Mental health awareness.",
+                    financial: "Student loans accumulating. Part-time work. Parental support varies wildly. Financial literacy low. Debt-blind often.",
+                    stressors: "Academic pressure. Financial anxiety. Career uncertainty crushing. Social comparison. Mental health crisis. Debt. Future.",
+                    social: "Friend groups central to identity. Online and offline blend. FOMO intense. Dating apps. Loneliness epidemic despite connectivity.",
+                    bodyLanguage: "Phone-absorbed. Expressive. Anxious energy. Informal posture. Fashion-conscious. Sleep-deprived. Stressed.",
+                    redFlags: "Mental health crisis rates. Substance experimentation. Academic pressure. Massive debt burden. Anxiety. Depression epidemic."
+                }
+            },
+            {
+                id: 45,
+                name: "Working Senior (60s)",
+                category: "Elderly",
+                age: 64,
+                income: "Low-Middle ($30k-50k)",
+                education: "HS/Some College",
+                religion: "Varied",
+                location: "Suburban",
+                icon: "👵",
+                traits: {
+                    decisionMaking: "Necessity-driven. Can't afford retirement. Values job security desperately. Experienced perspective. Traditional approach.",
+                    communication: "Professional but from different era. Resistant to change. Wealth of experience. Direct. Generational gap visible.",
+                    values: "Work ethic. Responsibility. Stability. Providing still. Competence. Respect for experience. Dignity in work.",
+                    financial: "Working out of absolute necessity. Insufficient savings. Healthcare costs. No retirement in sight. Anxiety about future. Social security insufficient.",
+                    stressors: "Physical demands brutal at age. Age discrimination. Financial insecurity. No retirement possible. Health declining. Dignity concerns.",
+                    social: "Work relationships. May feel left behind by peers who retired. Family support or strain. Limited energy for social.",
+                    bodyLanguage: "Shows age but perseveres. Pride in work. Tired chronically. Determined. Physical toll visible. Dignified despite.",
+                    redFlags: "Health crisis imminent. Financial crisis. Ageism. Physical decline affecting work capacity. Despair. No end in sight."
+                }
+            },
+            {
+                id: 46,
+                name: "Undocumented Worker",
+                category: "Immigrant Experience",
+                age: 32,
+                income: "Low ($15k-30k)",
+                education: "Varied",
+                religion: "Often Religious",
+                location: "Urban/Agricultural",
+                icon: "🌾",
+                traits: {
+                    decisionMaking: "Risk-assessment constant. Survival-focused. Avoids systems. Protects family. Extreme caution. Hyperaware.",
+                    communication: "Guarded cautious. Language barriers possible. Relies on community networks. Limited interaction with authorities. Careful.",
+                    values: "Family support. Sending remittances. Opportunity for children. Survival. Hope despite odds. Sacrifice. Better future.",
+                    financial: "Earns extremely low wages. Cash economy. Sends most money home. No banking access often. No safety net. Exploitation.",
+                    stressors: "Deportation fear constant. Exploitation by employers. Separation from family. No legal recourse. Health access limited. Trauma.",
+                    social: "Immigrant network absolutely crucial. Church community. Mutual aid. Limited connections outside. Trust carefully given.",
+                    bodyLanguage: "Cautious. Avoids attention. Hyperaware of authority. Hardworking visible. Keeps head down. Anxiety visible.",
+                    redFlags: "Severe exploitation vulnerability. Health neglect. Trauma. Family separation. Legal precarity. No recourse for abuse."
+                }
+            },
+            {
+                id: 47,
+                name: "Music Producer/DJ",
+                category: "Creative",
+                age: 32,
+                income: "Variable ($20k-100k+)",
+                education: "Varied/Self-taught",
+                religion: "Varied",
+                location: "Urban Music Scene",
+                icon: "🎧",
+                traits: {
+                    decisionMaking: "Creative-driven. Networking essential. Opportunity-grabbing. Trend-aware but authentic. Collaborative. Risk-taking.",
+                    communication: "Music as primary language. Collaborative natural. Negotiates deals. Scene-connected. Talks in beats and samples.",
+                    values: "Artistic expression. Innovation. Scene respect. Collaboration. Building catalog. Sonic perfection. Recognition. Pushing boundaries.",
+                    financial: "Extreme feast or famine. Streaming pennies. Live shows crucial. Beat sales. Licensing hopes. Side hustles. Unpredictable.",
+                    stressors: "Income instability severe. Industry exploitation. Substance culture immersed. Relevance anxiety. Streaming economics terrible. Competition intense.",
+                    social: "Music scene community. Late nights standard. Transient relationships. Collaboration networks. Studio isolation. Industry parties.",
+                    bodyLanguage: "Creative energy. Headphones lifestyle. Night owl. Expressive about music. Casual creative style. Tired. Passionate.",
+                    redFlags: "Substance abuse culture normalized. Mental health. Financial instability. Exploitation by labels. Burnout. Hearing damage."
+                }
+            },
+            {
+                id: 48,
+                name: "Casino Dealer",
+                category: "Gaming/Hospitality",
+                age: 31,
+                income: "Low-Middle ($25k-45k)",
+                education: "Dealer School",
+                religion: "Varied",
+                location: "Casino Town",
+                icon: "🎰",
+                traits: {
+                    decisionMaking: "Customer service oriented. Reads people expertly. Protocol-strict. Tip-motivated. Neutral on outcomes. Professional.",
+                    communication: "Engaging but professional. Reads players. Small talk skilled. Neutral on wins/losses. Friendly persona. Dealer banter.",
+                    values: "Customer experience. Fairness. Entertainment. Making tips. Dealing clean game. Professional pride. Skill mastery.",
+                    financial: "Tip-dependent income. Variable earnings. Night differential. No significant growth possible. Benefits sometimes. Modest living.",
+                    stressors: "Smoke exposure constant. Standing entire shift. Difficult aggressive players. Irregular hours. Gambling addiction proximity. Tips variable.",
+                    social: "Dealer community tight. Night shift life. Sees human nature extremes. Shift work isolation. Casino social scene.",
+                    bodyLanguage: "Professional smile maintained. Hand dexterity showcase. Standing stamina. Observant of players. Neutral expression. Tired.",
+                    redFlags: "Gambling addiction proximity. Smoke health effects. Shift work health problems. Limited career mobility. Exploitation."
+                }
+            },
+            {
+                id: 49,
+                name: "Person in Recovery (Sober)",
+                category: "Recovery",
+                age: 38,
+                income: "Variable",
+                education: "Varied",
+                religion: "Often Spiritual/Found",
+                location: "Varied",
+                icon: "🙏",
+                traits: {
+                    decisionMaking: "One day at a time. Routine-dependent. Support-seeking. Trigger-aware. Honest self-assessment. Meeting-oriented.",
+                    communication: "Honest and direct. Shares in recovery community. Vulnerable when appropriate. Boundaries learned. Spiritual language sometimes.",
+                    values: "Sobriety first. Honesty. Community. Service to others. Growth. Making amends. Helping others. Gratitude. Living principles.",
+                    financial: "Rebuilding everything. Variable based on career stage. Debt from addiction past. Focus on stability. Honest financial practices.",
+                    stressors: "Relapse triggers everywhere. Life stress. Relationship rebuilding. Shame residual. Making amends process. Staying sober daily. Rebuilding life.",
+                    social: "Recovery community absolutely central. Sponsor relationship. Rebuilding family trust. Sober social life. Service work. New sober friends.",
+                    bodyLanguage: "More present than before. Emotional availability growing. Signs of past sometimes visible. Hope. Serenity seeking. Honest demeanor.",
+                    redFlags: "Relapse risk always present. Pink cloud danger. Dry drunk syndrome. Relationship challenges. Unaddressed trauma. Complacency."
+                }
+            },
+            {
+                id: 50,
+                name: "Corporate Lawyer",
+                category: "Legal",
+                age: 38,
+                income: "Very High ($150k-500k+)",
+                education: "JD (Top Law School)",
+                religion: "Varied",
+                location: "Major City",
+                icon: "⚖️",
+                traits: {
+                    decisionMaking: "Risk analysis obsessed. Contract details everything. Adversarial thinking. Precedent-driven. Cautious. Strategic.",
+                    communication: "Extremely precise language. Arguments and counterarguments. Negotiation expert. Intimidating. Written communication priority.",
+                    values: "Winning. Intellectual rigor. Client loyalty. Partnership track. Billable hours. Reputation. Excellence. Precedent.",
+                    financial: "Very high income. Massive initial student debt ($200k+). Sophisticated wealth management. Lifestyle inflation. Bonus-driven.",
+                    stressors: "Billable hour tyranny. Partnership politics brutal. Client demands. Work-life destroyed. Competition intense. Perfectionism required.",
+                    social: "Professional networks. Transactional relationships common. Status-conscious. Family strain severe. Dating within legal field often.",
+                    bodyLanguage: "Power posture. Controlled emotion completely. Poker face mastered. Notices inconsistencies. Designer professional. Intimidating presence.",
+                    redFlags: "Substance abuse epidemic. Mental health crisis. Divorce extremely common. Ethical compromises. Burnout denial. Depression."
+                }
+            },
+            {
+                id: 51,
+                name: "Public Defender",
+                category: "Legal",
+                age: 35,
+                income: "Low-Middle ($50k-70k)",
+                education: "JD",
+                religion: "Varied",
+                location: "Urban",
+                icon: "⚖️",
+                traits: {
+                    decisionMaking: "Client-centered despite system. System navigator. Idealistic but realistic. Triage necessary. Justice-focused. Pragmatic.",
+                    communication: "Empathetic with clients. Aggressive in court. Advocates passionately. Overworked visible. Direct about limitations.",
+                    values: "Justice. Equality. Constitutional rights. Helping poor. Fighting broken system. Due process. Underdog advocacy.",
+                    financial: "Very low pay for education. Crushing student debt. Loan forgiveness programs. Values over money. Financial stress.",
+                    stressors: "Overwhelming impossible caseload. Low pay. Difficult clients. Moral injury from system. Witnessing injustice daily. Burnout epidemic.",
+                    social: "Tight bonds with fellow PDs. Social justice circles. Dating outside law sometimes relief. Everyone seeks free legal advice.",
+                    bodyLanguage: "Passionate in court. Chronically tired. Carries weight of injustice visibly. Fighter stance. Determined. Worn down.",
+                    redFlags: "Burnout epidemic. Severe cynicism. Vicarious trauma. Compassion fatigue. System disillusionment. Depression. Leaving profession."
+                }
+            },
+            {
+                id: 52,
+                name: "Hotel Manager",
+                category: "Service",
+                age: 41,
+                income: "Middle ($45k-70k)",
+                education: "Hospitality Degree/Bachelors",
+                religion: "Varied",
+                location: "Urban/Tourist Area",
+                icon: "🏨",
+                traits: {
+                    decisionMaking: "Guest satisfaction primary. Problem-solving under pressure. Balances corporate and local needs. Crisis management. Diplomatic.",
+                    communication: "Diplomatic service-oriented. De-escalation expert. Multilingual often. Professional polish. Accommodating. Clear directives.",
+                    values: "Hospitality excellence. Problem-solving. Team leadership. Customer experience. Efficiency. Standards. Reputation.",
+                    financial: "Stable middle income. Benefits decent. Bonus tied to performance metrics. Industry mobility. Comfortable not wealthy.",
+                    stressors: "Irregular hours brutal. Extremely difficult guests. Staff turnover constant. Corporate metrics pressure. Crisis management. Always on-call.",
+                    social: "Professional networks. Transient relationships due to industry. Work-life balance extremely hard. Limited personal time.",
+                    bodyLanguage: "Polished professional always. Calm under pressure. Assesses situations quickly. Service smile. Tired. Diplomatic demeanor.",
+                    redFlags: "Burnout from irregular schedule. Family strain. Difficulty saying no. Guest abuse tolerance. Health from stress."
+                }
+            },
+            {
+                id: 53,
+                name: "Family Farmer",
+                category: "Agriculture",
+                age: 52,
+                income: "Variable ($30k-70k)",
+                education: "HS/Ag School",
+                religion: "Often Religious",
+                location: "Rural",
+                icon: "🚜",
+                traits: {
+                    decisionMaking: "Long-term generational thinking. Weather and market dependent. Traditional. Conservative risks. Land-focused.",
+                    communication: "Direct practical. Slow to trust. Word is bond. Community-oriented. Plain speaking. Agricultural knowledge deep.",
+                    values: "Land stewardship. Hard work. Independence. Tradition. Family legacy. Faith often central. Generational continuity.",
+                    financial: "Asset-rich but cash-poor. Debt common and crushing. Generational wealth in land. Subsidies necessary. Market vulnerable.",
+                    stressors: "Weather anxiety constant. Commodity prices. Crushing debt. Corporate agriculture competition. Aging. Succession anxiety. Isolation.",
+                    social: "Tight rural community. Church often central. Multi-generational relationships. Slower pace. Limited outside contact.",
+                    bodyLanguage: "Weathered by elements. Practical clothing. Strong handshake. Tired. Connected to land visible. Steady. Dignified.",
+                    redFlags: "Suicide epidemic in farming. Financial stress extreme. Climate anxiety. Isolation. Resistance to change. Mental health stigma."
+                }
+            },
+            {
+                id: 54,
+                name: "Trust Fund Recipient",
+                category: "Wealthy",
+                age: 29,
+                income: "Very High (Passive)",
+                education: "Top University",
+                religion: "Varied",
+                location: "Major City/Resort Town",
+                icon: "💎",
+                traits: {
+                    decisionMaking: "Consequence-insulated. Experience-seeking. Network-leveraging. Purpose-searching sometimes. Risk-tolerant with money not theirs.",
+                    communication: "Polished confident. Name-drops. Assumes access. May lack awareness of privilege. Networking natural. Entitled sometimes.",
+                    values: "Experiences. Network. Maintaining status. Varies widely - some seek purpose, others pure hedonism. Connection. Authenticity (claimed).",
+                    financial: "Never thinks about money. Advisors handle everything. Generational wealth. Lifestyle expectations high. Philanthropy sometimes.",
+                    stressors: "Purpose-finding. Genuine relationship difficulty. Family expectations sometimes. Wealth guilt sometimes. Relevance anxiety. Meaning crisis.",
+                    social: "Elite exclusive circles. Trust issues about motives. Deep friendships rare. Transactional dynamics. Access as currency.",
+                    bodyLanguage: "Confident. Designer everything. Relaxed from security. Unaware of privilege display. Comfortable anywhere. Entitled posture.",
+                    redFlags: "Substance abuse. Purposelessness. Exploitation of others. Genuine connection difficulty. Narcissism. Isolation despite access."
+                }
+            },
+            {
+                id: 55,
+                name: "Disabled Person (Physical Disability)",
+                category: "Disability",
+                age: 36,
+                income: "Low (SSDI)",
+                education: "Varied",
+                religion: "Varied",
+                location: "Accessible Housing",
+                icon: "♿",
+                traits: {
+                    decisionMaking: "Accessibility-first always. Energy-conscious. Advocacy-minded. Systems navigator expert. Accommodations consideration constant.",
+                    communication: "Direct about needs. Educates others frequently. Varies by disability. Frustrated by barriers. Advocates for self.",
+                    values: "Independence. Accessibility. Dignity. Advocacy. Community. Accommodations as rights. Justice. Full participation.",
+                    financial: "SSDI often inadequate. Medical costs astronomical. Limited work options. Benefits cliff trap. Asset limits. Poverty.",
+                    stressors: "Constant ableism. Accessibility barriers everywhere. Medical system nightmare. Financial stress. Isolation. Advocacy exhaustion. Pain often.",
+                    social: "Disability community. Advocacy networks. Barriers limit social access severely. Online community crucial. Isolation common.",
+                    bodyLanguage: "Varies by disability. Mobility aids. Energy conservation visible. Accommodation needs evident. Determination. Advocacy stance.",
+                    redFlags: "Depression epidemic. Isolation. Medical trauma. Financial crisis common. Ableism trauma. System navigation exhaustion. Burnout."
+                }
+            },
+            {
+                id: 56,
+                name: "Person with Severe Mental Illness",
+                category: "Mental Health",
+                age: 42,
+                income: "Very Low/Disabled",
+                education: "Varied",
+                religion: "Varied",
+                location: "Urban/Group Home",
+                icon: "🧠",
+                traits: {
+                    decisionMaking: "Symptom-impacted. Support-dependent. Medication management crucial. Crisis awareness. System-navigating with help.",
+                    communication: "Varies greatly by state. May be disorganized. Direct about needs when stable. Stigma-aware. Seeking understanding.",
+                    values: "Stability. Treatment access. Dignity. Reducing stigma. Connection. Managing illness. Hope for better. Recovery orientation.",
+                    financial: "Disability income inadequate. Benefits crucial. Extreme poverty. Medical costs. Limited work capacity. Payee sometimes.",
+                    stressors: "Symptoms. Medication side effects. Crushing stigma. Housing instability. System navigation. Isolation. Crisis risk. Poverty.",
+                    social: "Mental health community. Case manager relationship. Family relationships strained sometimes. Profound isolation common. Support groups.",
+                    bodyLanguage: "Varies by diagnosis and state. Medication effects visible. May show illness signs. Stigma awareness. Vulnerability.",
+                    redFlags: "Crisis risk. Medication non-compliance. Homelessness risk high. Hospitalization. Suicide risk elevated. System failure."
+                }
+            },
+            {
+                id: 57,
+                name: "Active Military (Enlisted)",
+                category: "Military",
+                age: 28,
+                income: "Low-Middle ($30k-50k)",
+                education: "High School",
+                religion: "Often Religious",
+                location: "Base/Deployment",
+                icon: "🪖",
+                traits: {
+                    decisionMaking: "Chain of command. Mission-focused. Follows orders. Adapts to hardship. Disciplined. Team over individual always.",
+                    communication: "Direct efficient. Rank-aware. Abbreviations and jargon. Brotherhood language. Respectful of hierarchy. Clear.",
+                    values: "Service. Duty. Country. Team over self. Honor. Discipline. Sacrifice. Mission completion. Brotherhood/sisterhood.",
+                    financial: "Modest pay but housing and benefits. GI Bill. Saves or spends based on individual. Deployment pay. Stability.",
+                    stressors: "Deployment danger. Combat trauma. Family separation painful. Injury. Transition anxiety. Identity tied completely to service.",
+                    social: "Unit bonding intensely close. Civilian disconnect growing. Military spouse community. Moves frequently disrupt. War buddies for life.",
+                    bodyLanguage: "Disciplined military posture. Respectful to authority. Hypervigilant from training/deployment. Physically fit. Alert. Squared away.",
+                    redFlags: "PTSD. Moral injury. Substance abuse. Domestic violence rates higher. Difficult civilian transition looming. Identity crisis potential."
+                }
+            },
+            {
+                id: 58,
+                name: "Data Scientist",
+                category: "Tech & Innovation",
+                age: 35,
+                income: "High ($100k-180k)",
+                education: "PhD/Masters",
+                religion: "Secular",
+                location: "Urban",
+                icon: "📊",
+                traits: {
+                    decisionMaking: "Extremely analytical. Wants to see numbers. Statistical thinking. Deeply skeptical of anecdotes. Evidence-demanding.",
+                    communication: "Precise technical language. Loves visualizations and charts. Can oversimplify complex social issues with data. Corrects errors.",
+                    values: "Truth-seeking. Objectivity. Evidence-based everything. Pattern recognition. Intellectual honesty. Rigor.",
+                    financial: "Excellent with personal finance modeling. Optimizes everything including credit cards. Invests rationally. Well-compensated.",
+                    stressors: "Data quality issues. Stakeholders wanting specific answers. Ethical concerns with AI/ML. Imposter syndrome. Communication challenges.",
+                    social: "Small circle. Prefers deep intellectual conversations. Struggles with small talk. Online communities. Niche interests.",
+                    bodyLanguage: "Thoughtful pauses. References research frequently. Corrects factual errors immediately. Casual tech attire. Analytical gaze.",
+                    redFlags: "Can be condescending about 'intuition'. Paralysis by analysis. Blind spots for qualitative insights. Social awkwardness."
+                }
+            },
+            {
+                id: 59,
+                name: "Ranch Hand",
+                category: "Agriculture",
+                age: 34,
+                income: "Low ($25k-40k)",
+                education: "High School",
+                religion: "Often Religious",
+                location: "Rural",
+                icon: "🤠",
+                traits: {
+                    decisionMaking: "Practical immediate. Animal welfare focused. Weather-dependent. Physical work ethic. Experience-based. Independent.",
+                    communication: "Quiet direct. Actions over words. Respectful of hierarchy. Skilled with animals. Few words needed.",
+                    values: "Hard work. Animal care. Loyalty to ranch. Independence. Simplicity. Outdoor life. Traditional values.",
+                    financial: "Very low wages. Housing sometimes included. Lives simply. Limited savings ability. Cash economy sometimes.",
+                    stressors: "Low pay. Physical demands brutal. Isolation severe. Limited advancement. Weather. Animal loss. Injury risk.",
+                    social: "Small tight community. Ranch relationships. Often single or stable long relationships. Limited outside contact. Isolated.",
+                    bodyLanguage: "Rugged weathered. Practical functional attire. Quiet confidence. Physical fitness from work. Animal-aware. Independent bearing.",
+                    redFlags: "Isolation. Very limited economic mobility. Substance use. Injury ending career. Loneliness. Health neglect."
+                }
+            },
+            {
+                id: 60,
+                name: "Car Salesperson",
+                category: "Sales",
+                age: 40,
+                income: "Variable ($35k-80k)",
+                education: "HS/Some College",
+                religion: "Varied",
+                location: "Suburban",
+                icon: "🚗",
+                traits: {
+                    decisionMaking: "Opportunity-driven. Reads people quickly for sales. Closing-focused. Commission-motivated. Competitive.",
+                    communication: "Persuasive friendly. Builds rapport fast. Overcomes objections. High energy. Sales techniques visible.",
+                    values: "Making deals. Earning potential. Competition. Customer satisfaction (varies). Winning. Commission. Independence.",
+                    financial: "Completely commission-dependent. Can earn well or struggle. Lives by month. Saves when possible. Feast or famine.",
+                    stressors: "Quota pressure constant. Market conditions. Difficult customers. Reputation management. Income variability stressful.",
+                    social: "Wide but shallow networks. Everyone potential customer. Charismatic socially. Transactional tendencies.",
+                    bodyLanguage: "Open engaging. Firm handshake. Mirrors customer. Persistent energy. Sales posture. Confident demeanor.",
+                    redFlags: "Ethical shortcuts sometimes. Pushy stereotype sometimes accurate. Income stress. Reputation damage. Burnout."
+                }
+            }
+        ];
+
+        // State
+        let currentTab = 'browse';
+        let currentFilter = 'all';
+        let currentSearch = '';
+        let selectedProfile = null;
+
+        // Functions
+        function switchTab(tab) {
+            currentTab = tab;
+            currentSearch = '';
+            renderContent();
+            updateNavigation();
+        }
+
+        function updateNavigation() {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const tabs = ['browse', 'categories', 'guide'];
+            const index = tabs.indexOf(currentTab);
+            if (index !== -1) {
+                document.querySelectorAll('.nav-item')[index].classList.add('active');
+            }
+        }
+
+        function renderContent() {
+            const mainContent = document.getElementById('mainContent');
+            
+            if (currentTab === 'browse') {
+                renderBrowse();
+            } else if (currentTab === 'categories') {
+                renderCategories();
+            } else if (currentTab === 'guide') {
+                renderGuide();
+            }
+        }
+
+        function renderBrowse() {
+            const filtered = profiles.filter(p => {
+                const matchesSearch = currentSearch === '' || 
+                    p.name.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                    p.category.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                    p.traits.values.toLowerCase().includes(currentSearch.toLowerCase());
+                const matchesFilter = currentFilter === 'all' || p.category === currentFilter;
+                return matchesSearch && matchesFilter;
+            });
+
+            const categories = [...new Set(profiles.map(p => p.category))].sort();
+
+            const html = `
+                <div class="search-container">
+                    <input 
+                        type="text" 
+                        class="search-input" 
+                        placeholder="Search profiles..." 
+                        value="${currentSearch}"
+                        oninput="handleSearch(event)"
+                    >
+                </div>
+                <div class="filter-pills">
+                    <div class="pill ${currentFilter === 'all' ? 'active' : ''}" onclick="setFilter('all')">
+                        All (${profiles.length})
+                    </div>
+                    ${categories.map(cat => `
+                        <div class="pill ${currentFilter === cat ? 'active' : ''}" onclick="setFilter('${cat}')">
+                            ${cat}
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="profiles-container">
+                    ${filtered.length === 0 ? `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🔍</div>
+                            <div class="empty-state-text">No profiles found</div>
+                        </div>
+                    ` : filtered.map(profile => `
+                        <div class="profile-card" onclick="openDetail(${profile.id})">
+                            <div class="profile-card-header">
+                                <div>
+                                    <div class="profile-name">${profile.icon} ${profile.name}</div>
+                                    <div class="profile-category">${profile.category}</div>
+                                </div>
+                                <div class="chevron">›</div>
+                            </div>
+                            <div class="profile-info">
+                                <div class="info-tag">Age ${profile.age}</div>
+                                <div class="info-tag">${profile.income}</div>
+                                <div class="info-tag">${profile.education}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            document.getElementById('mainContent').innerHTML = html;
+        }
+
+        function renderCategories() {
+            const categories = {};
+            profiles.forEach(p => {
+                if (!categories[p.category]) {
+                    categories[p.category] = [];
+                }
+                categories[p.category].push(p);
+            });
+
+            const html = `
+                <div style="padding: 15px; padding-bottom: 100px;">
+                    ${Object.keys(categories).sort().map(cat => `
+                        <div class="category-section">
+                            <div class="category-header">
+                                <span>${cat}</span>
+                                <span class="category-count">${categories[cat].length} profiles</span>
+                            </div>
+                            <div class="profiles-container" style="padding: 0;">
+                                ${categories[cat].map(profile => `
+                                    <div class="profile-card" onclick="openDetail(${profile.id})">
+                                        <div class="profile-card-header">
+                                            <div>
+                                                <div class="profile-name">${profile.icon} ${profile.name}</div>
+                                            </div>
+                                            <div class="chevron">›</div>
+                                        </div>
+                                        <div class="profile-info">
+                                            <div class="info-tag">${profile.income}</div>
+                                            <div class="info-tag">Age ${profile.age}</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            document.getElementById('mainContent').innerHTML = html;
+        }
+
+        function renderGuide() {
+            const html = `
+                <div class="guide-container">
+                    <div class="guide-section">
+                        <div class="guide-title">📚 How to Use This App</div>
+                        <div class="guide-content">
+                            This simulator contains 60 detailed behavioral profiles across all socioeconomic levels and career paths. Each profile represents research-based patterns in psychology, sociology, and behavioral economics.
+                        </div>
+                    </div>
+
+                    <div class="guide-section">
+                        <div class="guide-title">🎯 What You'll Learn</div>
+                        <div class="guide-content">
+                            <ul class="guide-list">
+                                <li>Decision-making patterns by profession</li>
+                                <li>Communication styles across classes</li>
+                                <li>Financial behaviors and stressors</li>
+                                <li>Social patterns and body language</li>
+                                <li>Warning signs and vulnerabilities</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="guide-section">
+                        <div class="guide-title">👁️ Reading People - Key Principles</div>
+                        <div class="guide-content">
+                            <ul class="guide-list">
+                                <li><strong>Career Shapes Behavior:</strong> Years in a profession create predictable patterns</li>
+                                <li><strong>Income Affects Decisions:</strong> Financial security changes risk tolerance</li>
+                                <li><strong>Stress Reveals Truth:</strong> Watch how people act under pressure</li>
+                                <li><strong>Body Language Speaks:</strong> Physical tells are often more honest than words</li>
+                                <li><strong>Values Guide Choices:</strong> What people prioritize predicts actions</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="guide-section">
+                        <div class="guide-title">⚠️ Important Reminders</div>
+                        <div class="guide-content">
+                            <ul class="guide-list">
+                                <li>These are PATTERNS, not absolutes</li>
+                                <li>Every person is unique and complex</li>
+                                <li>Context matters enormously</li>
+                                <li>Trauma overrides typical patterns</li>
+                                <li>Use for empathy, not judgment</li>
+                                <li>Never stereotype or discriminate</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="guide-section">
+                        <div class="guide-title">🔍 What to Observe</div>
+                        <div class="guide-content">
+                            <ul class="guide-list">
+                                <li><strong>Word Choice:</strong> Education level, cultural background</li>
+                                <li><strong>Response Speed:</strong> Intuitive vs analytical thinking</li>
+                                <li><strong>Questions Asked:</strong> Values and priorities</li>
+                                <li><strong>Money Habits:</strong> True values in action</li>
+                                <li><strong>Stress Reactions:</strong> Coping mechanisms</li>
+                                <li><strong>Social Circles:</strong> Support systems and isolation</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="guide-section" style="background: rgba(255, 200, 0, 0.2); border: 2px solid rgba(255, 200, 0, 0.5);">
+                        <div class="guide-title">💡 The Goal</div>
+                        <div class="guide-content">
+                            Understanding human behavior is about building bridges, not walls. Use this knowledge to develop empathy, improve communication, and recognize our shared humanity across all differences. Never use it to manipulate or exploit others.
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('mainContent').innerHTML = html;
+        }
+
+        function openDetail(profileId) {
+            selectedProfile = profiles.find(p => p.id === profileId);
+            if (!selectedProfile) return;
+
+            const detailPage = document.getElementById('detailPage');
+            const detailContent = document.getElementById('detailPageContent');
+            
+            detailContent.innerHTML = `
+                <div class="profile-header-detail">
+                    <div class="profile-title-detail">${selectedProfile.icon} ${selectedProfile.name}</div>
+                    <div class="detail-tags">
+                        <div class="detail-tag">${selectedProfile.category}</div>
+                        <div class="detail-tag">Age ${selectedProfile.age}</div>
+                        <div class="detail-tag">${selectedProfile.income}</div>
+                        <div class="detail-tag">${selectedProfile.education}</div>
+                        <div class="detail-tag">${selectedProfile.religion}</div>
+                        <div class="detail-tag">${selectedProfile.location}</div>
+                    </div>
+                </div>
+
+                <div class="trait-section decision">
+                    <div class="trait-title">
+                        <span class="trait-icon">🧠</span>
+                        Decision-Making Style
+                    </div>
+                    <div class="trait-content">${selectedProfile.traits.decisionMaking}</div>
+                </div>
+
+                <div class="trait-section communication">
+                    <div class="trait-title">
+                        <span class="trait-icon">💬</span>
+                        Communication Pattern
+                    </div>
+                    <div class="trait-content">${selectedProfile.traits.communication}</div>
+                </div>
+
+                <div class="trait-section values">
+                    <div class="trait-title">
+                        <span class="trait-icon">⭐</span>
+                        Core Values
+                    </div>
+                    <div class="trait-content">${selectedProfile.traits.values}</div>
+                </div>
+
+                <div class="trait-section financial">
+                    <div class="trait-title">
+                        <span class="trait-icon">💰</span>
+                        Financial Behavior
+                    </div>
+                    <div class="trait-content">${selectedProfile.traits.financial}</div>
+                </div>
+
+                <div class="trait-section stressors">
+                    <div class="trait-title">
+                        <span class="trait-icon">⚡</span>
+                        Primary Stressors
+                    </div>
+                    <div class="trait-content">${selectedProfile.traits.stressors}</div>
+                </div>
+
+                <div class="trait-section social">
+                    <div class="trait-title">
+                        <span class="trait-icon">👥</span>
+                        Social Patterns
+                    </div>
+                    <div class="trait-content">${selectedProfile.traits.social}</div>
+                </div>
+
+                <div class="trait-section body">
+                    <div class="trait-title">
+                        <span class="trait-icon">👁️</span>
+                        Body Language & Presentation
+                    </div>
+                    <div class="trait-content">${selectedProfile.traits.bodyLanguage}</div>
+                </div>
+
+                <div class="trait-section red-flags">
+                    <div class="trait-title">
+                        <span class="trait-icon">🚩</span>
+                        Potential Red Flags
+                    </div>
+                    <div class="trait-content">${selectedProfile.traits.redFlags}</div>
+                </div>
+            `;
+
+            detailPage.classList.add('active');
+        }
+
+        function closeDetail() {
+            document.getElementById('detailPage').classList.remove('active');
+            selectedProfile = null;
+        }
+
+        function handleSearch(event) {
+            currentSearch = event.target.value;
+            renderBrowse();
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            renderBrowse();
+        }
+
+        // Initialize
+        renderContent();
+        updateNavigation();
+    </script>
+</body>
+</html>
